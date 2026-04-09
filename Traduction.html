@@ -1,0 +1,141 @@
+<!-- ===== LANGUAGE SYSTEM ===== -->
+
+<style>
+    /* LANGUAGE SCREEN */
+    .lang-screen{
+      position:fixed;
+      inset:0;
+      background:var(--ink);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+    }
+    
+    .lang-box{
+      text-align:center;
+      max-width:520px;
+    }
+    
+    .lang-title{
+      font-family:'Cormorant Garamond',serif;
+      font-size:clamp(3rem,6vw,5rem);
+      color:#fff;
+      margin-bottom:30px;
+    }
+    
+    .lang-title span{
+      color:var(--paper);
+      font-style:italic;
+    }
+    
+    .lang-text{
+      color:var(--light);
+      font-size:.85rem;
+      letter-spacing:.15em;
+      margin-bottom:40px;
+    }
+    
+    .lang-buttons{
+      display:flex;
+      justify-content:center;
+      gap:20px;
+    }
+    
+    .lang-btn{
+      background:transparent;
+      border:1px solid var(--border-dark);
+      color:var(--cream);
+      padding:14px 28px;
+      letter-spacing:.25em;
+      text-transform:uppercase;
+      font-size:.65rem;
+      cursor:pointer;
+      transition:.35s;
+    }
+    
+    .lang-btn:hover{
+      background:var(--cream);
+      color:var(--ink);
+    }
+    </style>
+    
+    <div id="language-screen" class="lang-screen">
+      <div class="lang-box">
+    
+        <h1 class="lang-title">
+          Bienvenue sur mon portfolio<br>
+          <span>Welcome to my portfolio</span>
+        </h1>
+    
+        <p class="lang-text">
+          Quelle langue préférez-vous ?<br>
+          Which language do you prefer?
+        </p>
+    
+        <div class="lang-buttons">
+          <button class="lang-btn" onclick="setLanguage('fr')">Français</button>
+          <button class="lang-btn" onclick="setLanguage('en')">English</button>
+        </div>
+    
+      </div>
+    </div>
+    
+    <script>
+    const translations = {
+    
+    fr:{
+    navAbout:"À propos",
+    navProjects:"Projets",
+    navSkills:"Compétences",
+    navContact:"Contact",
+    heroTag:"Portfolio Data & Technologie",
+    heroDesc:"Analyse de données, automatisation et systèmes d'information."
+    },
+    
+    en:{
+    navAbout:"About",
+    navProjects:"Projects",
+    navSkills:"Skills",
+    navContact:"Contact",
+    heroTag:"Data & Technology Portfolio",
+    heroDesc:"Data analysis, automation and information systems."
+    }
+    
+    };
+    
+    function setLanguage(lang){
+      localStorage.setItem("portfolio-lang", lang);
+      document.getElementById("language-screen").style.display="none";
+      applyTranslations(lang);
+    }
+    
+    function applyTranslations(lang){
+      const t = translations[lang];
+    
+      const about = document.getElementById("nav-about");
+      const projects = document.getElementById("nav-projects");
+      const skills = document.getElementById("nav-skills");
+      const contact = document.getElementById("nav-contact");
+      const heroTag = document.getElementById("hero-tag");
+      const heroDesc = document.getElementById("hero-desc");
+    
+      if(about) about.innerText = t.navAbout;
+      if(projects) projects.innerText = t.navProjects;
+      if(skills) skills.innerText = t.navSkills;
+      if(contact) contact.innerText = t.navContact;
+      if(heroTag) heroTag.innerText = t.heroTag;
+      if(heroDesc) heroDesc.innerText = t.heroDesc;
+    }
+    
+    window.addEventListener("load", () => {
+      const savedLang = localStorage.getItem("portfolio-lang");
+    
+      if(savedLang){
+        document.getElementById("language-screen").style.display="none";
+        applyTranslations(savedLang);
+      }
+    });
+    </script>
+    
+    <!-- ===== END LANGUAGE SYSTEM ===== -->

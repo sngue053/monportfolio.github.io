@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Study — Mentorat Étudiant · Sandra N'guessan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:    #0d0d0d;
+  --ink2:   #1a1a1a;
+  --cream:  #f0ede6;
+  --paper:  #e4e0d8;
+  --white:  #ffffff;
+  --charcoal: #2e2e2e;
+  --mid:    #666666;
+  --light:  #999999;
+  --bd:     rgba(0,0,0,0.09);
+  --bd-dk:  rgba(255,255,255,0.09);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--cream);color:var(--charcoal);font-family:'Montserrat',sans-serif;font-weight:300;line-height:1.7;overflow-x:hidden;cursor:none;}
+
+/* CURSOR */
+.cursor{position:fixed;width:8px;height:8px;background:var(--ink);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .15s;mix-blend-mode:multiply;}
+.cursor-ring{position:fixed;width:32px;height:32px;border:1px solid rgba(0,0,0,.25);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .25s,height .25s;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:22px 60px;background:rgba(240,237,230,.97);border-bottom:1px solid var(--bd);backdrop-filter:blur(8px);}
+.nav-back{display:flex;align-items:center;gap:10px;text-decoration:none;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mid);transition:color .3s;}
+.nav-back:hover{color:var(--ink);}
+.nav-back-arrow{font-size:1rem;line-height:1;}
+.nav-title{font-family:'Cormorant Garamond',serif;font-size:1rem;letter-spacing:.08em;color:var(--charcoal);}
+.nav-tag{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--light);border:1px solid var(--bd);padding:5px 12px;}
+
+/* ══ HERO ══ */
+.cs-hero{min-height:92vh;display:grid;grid-template-columns:1fr 1fr;background:var(--ink);position:relative;overflow:hidden;padding-top:80px;}
+.hero-left{padding:80px 60px 80px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;z-index:2;}
+.hero-right{position:relative;overflow:hidden;}
+.hero-img-wrap{width:100%;height:100%;min-height:500px;}
+.hero-img-overlay{position:absolute;inset:0;background:linear-gradient(to right,var(--ink) 0%,rgba(13,13,13,.3) 50%,transparent 100%);}
+
+/* Placeholder image */
+.img-ph{width:100%;height:100%;background:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border-left:2px dashed rgba(255,255,255,.1);}
+.img-ph-icon{font-size:2.5rem;opacity:.15;}
+.img-ph-txt{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.2);}
+.img-ph-hint{font-size:.52rem;color:rgba(255,255,255,.15);}
+.img-ph img.swap{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;}
+
+.hero-case-num{font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:16px;}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.8rem,5vw,5rem);font-weight:300;line-height:1.0;color:#fff;margin-bottom:12px;}
+.hero-title em{font-style:italic;color:var(--paper);}
+.hero-org{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:32px;}
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:40px;}
+.hero-tag{font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.15);padding:5px 14px;}
+.hero-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:auto;}
+.hero-metric{background:rgba(255,255,255,.04);padding:20px 16px;border-top:1px solid rgba(255,255,255,.1);}
+.hm-n{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:300;color:#fff;line-height:1;}
+.hm-l{font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-top:4px;}
+
+/* ══ BREADCRUMB STRIP ══ */
+.strip{background:var(--white);border-bottom:1px solid var(--bd);padding:14px 60px;display:flex;align-items:center;gap:8px;font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--light);}
+.strip span{color:var(--mid);}
+
+/* ══ MAIN LAYOUT ══ */
+.cs-body{max-width:1200px;margin:0 auto;padding:0 60px;}
+
+/* ══ SECTION SHARED ══ */
+.cs-section{padding:80px 0;border-bottom:1px solid var(--bd);}
+.cs-section:last-child{border-bottom:none;}
+.cs-section-inner{display:grid;grid-template-columns:200px 1fr;gap:60px;align-items:start;}
+.cs-label{font-size:.58rem;letter-spacing:.3em;text-transform:uppercase;color:var(--light);padding-top:6px;position:sticky;top:100px;}
+.cs-label-num{font-family:'Cormorant Garamond',serif;font-size:2.2rem;color:var(--paper);line-height:1;display:block;margin-bottom:4px;}
+.cs-content{}
+.cs-content h3{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:400;color:var(--charcoal);margin-bottom:16px;line-height:1.15;}
+.cs-content p{font-size:.85rem;color:var(--mid);line-height:1.9;margin-bottom:16px;}
+.cs-content p:last-child{margin-bottom:0;}
+
+/* ══ PROBLEM / HYPOTHESIS BOX ══ */
+.problem-box{background:var(--ink);color:#fff;padding:36px 40px;margin:24px 0;position:relative;overflow:hidden;}
+.problem-box::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#fff;}
+.problem-box .pb-label{font-size:.55rem;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:12px;}
+.problem-box p{font-family:'Cormorant Garamond',serif;font-size:1.3rem;line-height:1.6;color:#fff;font-style:italic;}
+
+/* ══ DATA INSIGHT CARDS ══ */
+.insight-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin:24px 0;}
+.insight-card{background:var(--white);padding:28px 24px;border-top:2px solid var(--charcoal);}
+.insight-card.highlight{background:var(--ink);border-top-color:var(--ink);}
+.ic-icon{font-size:1.4rem;margin-bottom:10px;}
+.ic-stat{font-family:'Cormorant Garamond',serif;font-size:2.2rem;color:var(--charcoal);line-height:1;margin-bottom:6px;}
+.insight-card.highlight .ic-stat{color:#fff;}
+.ic-label{font-size:.7rem;color:var(--mid);line-height:1.6;}
+.insight-card.highlight .ic-label{color:rgba(255,255,255,.5);}
+
+/* ══ PROCESS STEPS ══ */
+.process-steps{display:flex;flex-direction:column;gap:2px;margin:24px 0;}
+.ps-item{display:grid;grid-template-columns:60px 1fr;gap:0;background:var(--white);border-left:2px solid transparent;transition:border-color .3s,background .3s;}
+.ps-item:hover{border-left-color:var(--charcoal);background:#fafaf8;}
+.ps-num{background:var(--charcoal);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:300;min-height:80px;}
+.ps-content{padding:20px 24px;}
+.ps-title{font-size:.82rem;font-weight:500;color:var(--charcoal);margin-bottom:4px;letter-spacing:.02em;}
+.ps-desc{font-size:.76rem;color:var(--mid);line-height:1.7;}
+
+/* ══ BEFORE / AFTER TABLE ══ */
+.ba-table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.8rem;}
+.ba-table th{background:var(--ink);color:#fff;padding:12px 16px;text-align:left;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;font-weight:400;}
+.ba-table th:first-child{width:35%;}
+.ba-table td{padding:14px 16px;border-bottom:1px solid var(--bd);color:var(--mid);vertical-align:top;line-height:1.6;}
+.ba-table tr:last-child td{border-bottom:none;}
+.ba-table .before{color:var(--light);}
+.ba-table .after{color:var(--charcoal);font-weight:500;}
+.ba-table tr:nth-child(even) td{background:var(--white);}
+
+/* ══ TOOLS ROW ══ */
+.tools-row{display:flex;flex-wrap:wrap;gap:2px;margin:24px 0;}
+.tool-chip{background:var(--ink);color:#fff;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;padding:8px 18px;transition:background .2s;}
+.tool-chip:hover{background:var(--charcoal);}
+
+/* ══ RESULTS GRID ══ */
+.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin:24px 0;}
+.result-item{background:var(--white);padding:24px;display:flex;gap:14px;align-items:flex-start;border-bottom:2px solid transparent;transition:border-color .3s;}
+.result-item:hover{border-bottom-color:var(--charcoal);}
+.ri-arrow{font-size:1.1rem;color:var(--charcoal);flex-shrink:0;margin-top:2px;}
+.ri-text{font-size:.8rem;color:var(--mid);line-height:1.7;}
+.ri-text strong{color:var(--charcoal);display:block;margin-bottom:3px;font-size:.78rem;}
+
+/* ══ LEARNINGS ══ */
+.learning-list{display:flex;flex-direction:column;gap:16px;margin:24px 0;}
+.ll-item{display:flex;gap:20px;align-items:flex-start;}
+.ll-dot{width:6px;height:6px;border-radius:50%;background:var(--charcoal);flex-shrink:0;margin-top:8px;}
+.ll-text{font-size:.84rem;color:var(--mid);line-height:1.8;}
+.ll-text em{font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--charcoal);font-style:italic;}
+
+/* ══ QUOTE ══ */
+.cs-quote{background:var(--white);border-left:3px solid var(--charcoal);padding:28px 32px;margin:32px 0;}
+.cs-quote p{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-style:italic;color:var(--charcoal);line-height:1.65;}
+.cs-quote cite{display:block;margin-top:10px;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--light);font-style:normal;}
+
+/* ══ SKILLS DEMONSTRATED ══ */
+.skills-demonstrated{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin:24px 0;}
+.sd-item{background:var(--white);padding:20px 16px;text-align:center;}
+.sd-icon{font-size:1.3rem;margin-bottom:8px;}
+.sd-label{font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);line-height:1.4;}
+
+/* ══ NEXT CASE ══ */
+.next-case{background:var(--ink);padding:80px 60px;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+.nc-left{}
+.nc-label{font-size:.58rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:12px;}
+.nc-title{font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:300;color:#fff;line-height:1.1;margin-bottom:20px;}
+.nc-desc{font-size:.8rem;color:rgba(255,255,255,.45);line-height:1.8;}
+.nc-right{display:flex;flex-direction:column;gap:12px;align-items:flex-start;}
+.nc-btn{display:inline-flex;align-items:center;gap:12px;text-decoration:none;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;border:1px solid rgba(255,255,255,.25);padding:16px 28px;color:rgba(255,255,255,.7);transition:all .3s;position:relative;overflow:hidden;}
+.nc-btn::before{content:'';position:absolute;inset:0;background:#fff;transform:scaleX(0);transform-origin:left;transition:transform .35s ease;z-index:-1;}
+.nc-btn:hover{color:var(--ink);border-color:#fff;}
+.nc-btn:hover::before{transform:scaleX(1);}
+.nc-btn.primary{background:rgba(255,255,255,.08);}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.visible{opacity:1;transform:none;}
+
+/* Progress bar at top */
+.reading-bar{position:fixed;top:0;left:0;height:2px;background:var(--charcoal);z-index:999;width:0%;transition:width .1s linear;}
+
+@media(max-width:900px){
+  nav{padding:16px 24px;}
+  .cs-hero{grid-template-columns:1fr;min-height:auto;}
+  .hero-right{display:none;}
+  .hero-left{padding:60px 24px 48px;}
+  .strip{padding:12px 24px;}
+  .cs-body{padding:0 24px;}
+  .cs-section-inner{grid-template-columns:1fr;gap:24px;}
+  .cs-label{position:static;}
+  .insight-grid{grid-template-columns:1fr;}
+  .results-grid{grid-template-columns:1fr;}
+  .skills-demonstrated{grid-template-columns:1fr 1fr;}
+  .next-case{grid-template-columns:1fr;padding:60px 24px;}
+}
+</style>
+</head>
+<body>
+
+<div class="reading-bar" id="readingBar"></div>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="portfolio-sandra.html" class="nav-back">
+    <span class="nav-back-arrow">←</span>
+    Retour au portfolio
+  </a>
+  <span class="nav-title">Sandra N'guessan</span>
+  <span class="nav-tag">Case Study 04</span>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="cs-hero">
+  <div class="hero-left">
+    <div class="hero-case-num">Cas n° 04 — Recherche & Conseil</div>
+    <h1 class="hero-title">Mentorat<br>étudiant :<br><em>de la donnée<br>à la décision</em></h1>
+    <p class="hero-org">Faculté des Sciences Sociales · Université d'Ottawa · 2024–2025</p>
+    <div class="hero-tags">
+      <span class="hero-tag">BI & Analyse</span>
+      <span class="hero-tag">UX / Prototype</span>
+      <span class="hero-tag">Analyse coûts-bénéfices</span>
+      <span class="hero-tag">Recherche appliquée</span>
+      <span class="hero-tag">Conseil institutionnel</span>
+    </div>
+    <div class="hero-metrics">
+      <div class="hero-metric">
+        <div class="hm-n">+5%</div>
+        <div class="hm-l">Rétention<br>ciblée</div>
+      </div>
+      <div class="hero-metric">
+        <div class="hm-n">Hi-Fi</div>
+        <div class="hm-l">Prototype<br>haute-fidélité</div>
+      </div>
+      <div class="hero-metric">
+        <div class="hm-n">ROI+</div>
+        <div class="hm-l">Viabilité<br>démontrée</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <!-- 📸 Remplacer src="mentorat-hero.jpg" par une capture du prototype -->
+    <div class="img-ph hero-img-wrap" style="position:relative;">
+      <div class="img-ph-icon">🖼</div>
+      <div class="img-ph-txt">Capture du prototype</div>
+      <div class="img-ph-hint">src="mentorat-hero.jpg"</div>
+      <img class="swap" src="mentorat-hero.jpg" alt="" onerror="this.style.display='none'">
+    </div>
+    <div class="hero-img-overlay"></div>
+  </div>
+</section>
+
+<!-- BREADCRUMB -->
+<div class="strip">
+  <span>Portfolio</span> / <span>Projets</span> / <span style="color:var(--charcoal)">Mentorat étudiant</span>
+</div>
+
+<div class="cs-body">
+
+  <!-- ══ 01 CONTEXTE ══ -->
+  <div class="cs-section reveal">
+    <div class="cs-section-inner">
+      <div class="cs-label">
+        <span class="cs-label-num">01</span>
+        Contexte
+      </div>
+      <div class="cs-content">
+        <h3>Un problème de rétention.<br>Un manque de données.</h3>
+        <p>La Faculté des Sciences Sociales de l'Université d'Ottawa faisait face à un enjeu structurel : un taux de rétention au premier cycle en deçà des objectifs institutionnels. Le mentorat étudiant était identifié comme levier potentiel — mais son suivi était inexistant, fragmenté et impossible à analyser.</p>
+        <p>Aucun outil ne permettait de savoir combien d'étudiants bénéficiaient réellement d'un mentor, à quelle fréquence les rencontres avaient lieu, ni si la qualité du mentorat influençait la persévérance scolaire.</p>
+
+        <div class="problem-box">
+          <div class="pb-label">Problème central</div>
+          <p>"Comment mesurer et améliorer l'impact du mentorat sur la rétention étudiante, quand aucune donnée fiable n'existe pour prendre cette décision ?"</p>
+        </div>
+
+        <p>Ma mission : concevoir une solution outillée — fondée sur les données — qui permette à la faculté de passer d'une gestion intuitive du mentorat à une gestion éclairée et tracée.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 02 DONNÉES & ANALYSE ══ -->
+  <div class="cs-section reveal">
+    <div class="cs-section-inner">
+      <div class="cs-label">
+        <span class="cs-label-num">02</span>
+        Données & Diagnostic
+      </div>
+      <div class="cs-content">
+        <h3>Ce que les données<br>d'enquête révèlent.</h3>
+        <p>La phase de diagnostic a débuté par l'analyse des données d'enquête existantes auprès des étudiants de première année. Ces données, bien que non structurées, ont permis d'identifier les principaux points de friction dans le parcours de mentorat.</p>
+
+        <div class="insight-grid">
+          <div class="insight-card highlight">
+            <div class="ic-icon">📉</div>
+            <div class="ic-stat" style="color:#fff;">&#60;40%</div>
+            <div class="ic-label">des étudiants de première année déclarent avoir eu un suivi de mentorat régulier</div>
+          </div>
+          <div class="insight-card">
+            <div class="ic-icon">🔄</div>
+            <div class="ic-stat">3 sur 5</div>
+            <div class="ic-label">mentors ne disposaient d'aucun outil pour documenter leurs rencontres</div>
+          </div>
+          <div class="insight-card">
+            <div class="ic-icon">⚠️</div>
+            <div class="ic-stat">0</div>
+            <div class="ic-label">indicateur de suivi KPI disponible pour la direction de la faculté</div>
+          </div>
+        </div>
+
+        <p>Ces constats ont orienté la conception vers trois priorités : <strong>traçabilité</strong> des interactions, <strong>visibilité</strong> pour la direction, et <strong>simplicité d'usage</strong> pour les mentors.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 03 APPROCHE ══ -->
+  <div class="cs-section reveal">
+    <div class="cs-section-inner">
+      <div class="cs-label">
+        <span class="cs-label-num">03</span>
+        Approche & Méthodologie
+      </div>
+      <div class="cs-content">
+        <h3>Une démarche en<br>quatre étapes.</h3>
+        <p>L'approche adoptée suit la logique d'un projet de conseil en transformation digitale : comprendre avant de concevoir, impliquer avant de livrer.</p>
+
+        <div class="process-steps">
+          <div class="ps-item">
+            <div class="ps-num">1</div>
+            <div class="ps-content">
+              <div class="ps-title">Recherche & Analyse des besoins</div>
+              <div class="ps-desc">Analyse des données d'enquête étudiante. Cartographie du parcours de mentorat actuel. Identification des gaps entre le processus idéal et la réalité terrain. Entretiens informels avec des mentors et des étudiants mentorés.</div>
+            </div>
+          </div>
+          <div class="ps-item">
+            <div class="ps-num">2</div>
+            <div class="ps-content">
+              <div class="ps-title">Définition des indicateurs clés (KPI)</div>
+              <div class="ps-desc">Définition d'un cadre de mesure : fréquence des rencontres, qualité perçue, thèmes abordés, progression académique. Ces KPI ont guidé toute la conception du prototype pour garantir que l'outil produit de la donnée utile.</div>
+            </div>
+          </div>
+          <div class="ps-item">
+            <div class="ps-num">3</div>
+            <div class="ps-content">
+              <div class="ps-title">Conception du prototype haute-fidélité</div>
+              <div class="ps-desc">Prototype d'application couvrant trois rôles : étudiant mentoré, mentor, et administrateur faculté. L'interface administrateur intègre un dashboard de suivi en temps réel avec les KPI définis. Itérations basées sur les retours des parties prenantes.</div>
+            </div>
+          </div>
+          <div class="ps-item">
+            <div class="ps-num">4</div>
+            <div class="ps-content">
+              <div class="ps-title">Analyse coûts-bénéfices & recommandations</div>
+              <div class="ps-desc">Modélisation économique de la viabilité du projet : coûts de développement estimés, valeur d'une amélioration de +5% de rétention (impact financier sur les frais de scolarité), retour sur investissement projeté sur 3 ans.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 04 AVANT / APRÈS ══ -->
+  <div class="cs-section reveal">
+    <div class="cs-section-inner">
+      <div class="cs-label">
+        <span class="cs-label-num">04</span>
+        Avant & Après
+      </div>
+      <div class="cs-content">
+        <h3>La transformation<br>proposée.</h3>
+        <p>Le tableau ci-dessous illustre le delta entre la situation diagnostiquée et la solution proposée — c'est le cœur de la valeur ajoutée du projet.</p>
+
+        <table class="ba-table">
+          <thead>
+            <tr>
+              <th>Dimension</th>
+              <th>Situation actuelle</th>
+              <th>Solution proposée</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Suivi des rencontres</strong></td>
+              <td class="before">Manuel, irrégulier, non documenté</td>
+              <td class="after">Automatisé, structuré, horodaté</td>
+            </tr>
+            <tr>
+              <td><strong>Visibilité direction</strong></td>
+              <td class="before">Aucune donnée agrégée disponible</td>
+              <td class="after">Dashboard KPI en temps réel</td>
+            </tr>
+            <tr>
+              <td><strong>Expérience mentor</strong></td>
+              <td class="before">Pas d'outil, pas de cadre</td>
+              <td class="after">Interface intuitive avec guides et rappels</td>
+            </tr>
+            <tr>
+              <td><strong>Expérience étudiant</strong></td>
+              <td class="before">Accès au mentor difficile à initier</td>
+              <td class="after">Prise de rendez-vous intégrée, suivi visible</td>
+            </tr>
+            <tr>
+              <td><strong>Taux de rétention</strong></td>
+              <td class="before">Baseline non améliorée</td>
+              <td class="after"><strong>+5% ciblé sur 2 ans</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Décisions institutionnelles</strong></td>
+              <td class="before">Basées sur l'intuition</td>
+              <td class="after">Basées sur des données mesurées</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 05 PROTOTYPE ══ -->
+  <div class="cs-section reveal">
+    <div class="cs-section-inner">
+      <div class="cs-label">
+        <span class="cs-label-num">05</span>
+        Prototype
+      </div>
+      <div class="cs-content">
+        <h3>Trois interfaces.<br>Un seul objectif.</h3>
+        <p>Le prototype haute-fidélité couvre l'ensemble du parcours en trois vues distinctes, chacune répondant à un besoin précis identifié lors de la phase de diagnostic.</p>
+
+        <!-- Prototype mockup grid -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;margin:24px 0;">
+          <div style="background:#fff;padding:24px;border-top:2px solid var(--charcoal);">
+            <div style="font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--light);margin-bottom:8px;">Vue 01</div>
+            <div class="img-ph" style="height:160px;border:1px dashed var(--bd);background:var(--cream);">
+              <div class="img-ph-icon" style="font-size:1.5rem;">📱</div>
+              <div class="img-ph-txt">Capture écran étudiant</div>
+              <div class="img-ph-hint">src="proto-etudiant.jpg"</div>
+            </div>
+            <div style="margin-top:12px;font-size:.75rem;font-weight:500;color:var(--charcoal);">Interface Étudiant</div>
+            <div style="font-size:.72rem;color:var(--mid);margin-top:4px;line-height:1.6;">Prise de RDV, suivi des rencontres, objectifs partagés avec le mentor.</div>
+          </div>
+          <div style="background:#fff;padding:24px;border-top:2px solid var(--charcoal);">
+            <div style="font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--light);margin-bottom:8px;">Vue 02</div>
+            <div class="img-ph" style="height:160px;border:1px dashed var(--bd);background:var(--cream);">
+              <div class="img-ph-icon" style="font-size:1.5rem;">🗓</div>
+              <div class="img-ph-txt">Capture écran mentor</div>
+              <div class="img-ph-hint">src="proto-mentor.jpg"</div>
+            </div>
+            <div style="margin-top:12px;font-size:.75rem;font-weight:500;color:var(--charcoal);">Interface Mentor</div>
+            <div style="font-size:.72rem;color:var(--mid);margin-top:4px;line-height:1.6;">Journal de rencontres, notes structurées, alertes de suivi.</div>
+          </div>
+          <div style="background:var(--ink);padding:24px;border-top:2px solid var(--ink);">
+            <div style="font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:8px;">Vue 03</div>
+            <div class="img-ph" style="height:160px;border:1px dashed rgba(255,255,255,.15);background:#111;">
+              <div class="img-ph-icon" style="font-size:1.5rem;">📊</div>
+              <div class="img-ph-txt" style="color:rgba(255,255,255,.3);">Dashboard admin</div>
+              <div class="img-ph-hint" style="color:rgba(255,255,255,.2);">src="proto-admin.jpg"</div>
+            </div>
+            <div style="margin-top:12px;font-size:.75rem;font-weight:500;color:#fff;">Dashboard Faculté</div>
+            <div style="font-size:.72rem;color:rgba(255,255,255,.4);margin-top:4px;line-height:1.6;">KPI en temps réel, taux d'engagement, alertes décrochage.</div>
+          </div>
+        </div>
+
+        <div class="tools-row">
+          <span class="tool-chip">Figma</span>
+          <span class="tool-chip">UX Research</span>
+          <span class="tool-chip">Wireframing</span>
+          <span class="tool-chip">Data Modelling</span>
+          <span class="tool-chip">KPI Framework</span>
+          <span class="tool-chip">Storyboarding</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 06 ANALYSE COÛTS-BÉNÉFICES ══ -->
+  <div class="cs-section reveal">
+    <div class="cs-section-inner">
+      <div class="cs-label">
+        <span class="cs-label-num">06</span>
+        Analyse<br>coûts-bénéfices
+      </div>
+      <div class="cs-content">
+        <h3>La viabilité économique<br>du projet.</h3>
+        <p>La question centrale posée aux décideurs de la faculté : est-ce que l'investissement dans cet outil est justifiable économiquement ? L'analyse coûts-bénéfices a été construite pour y répondre avec des données.</p>
+
+        <div class="cs-quote">
+          <p>"Une amélioration de 5% du taux de rétention au premier cycle représente, pour une faculté de taille moyenne, un maintien de revenus de frais de scolarité significatif — bien au-delà du coût de développement d'un outil de suivi."</p>
+          <cite>— Conclusion de l'analyse coûts-bénéfices, 2025</cite>
+        </div>
+
+        <!-- Simple cost-benefit visual -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin:24px 0;">
+          <div style="background:var(--white);padding:28px;">
+            <div style="font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--light);margin-bottom:16px;">Coûts estimés</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd);font-size:.78rem;color:var(--mid);">
+                <span>Développement (MVP)</span><span style="color:var(--charcoal);font-weight:500;">Modéré</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd);font-size:.78rem;color:var(--mid);">
+                <span>Maintenance annuelle</span><span style="color:var(--charcoal);font-weight:500;">Faible</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd);font-size:.78rem;color:var(--mid);">
+                <span>Formation utilisateurs</span><span style="color:var(--charcoal);font-weight:500;">Minimal</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:.78rem;color:var(--mid);">
+                <span>Temps de déploiement</span><span style="color:var(--charcoal);font-weight:500;">1 semestre</span>
+              </div>
+            </div>
+          </div>
+          <div style="background:var(--ink);padding:28px;">
+            <div style="font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:16px;">Bénéfices projetés</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:.78rem;color:rgba(255,255,255,.5);">
+                <span>Rétention +5%</span><span style="color:#fff;font-weight:500;">Élevé</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:.78rem;color:rgba(255,255,255,.5);">
+                <span>Revenus frais scolarité</span><span style="color:#fff;font-weight:500;">Significatif</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:.78rem;color:rgba(255,255,255,.5);">
+                <span>Réputation institutionnelle</span><span style="color:#fff;font-weight:500;">Moyen terme</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:.78rem;color:rgba(255,255,255,.5);">
+                <span>ROI projeté (3 ans)</span><span style="color:#fff;font-weight:500;">Positif</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 07 RÉSULTATS ══ -->
+  <div class="cs-section reveal">
+    <div class="cs-section-inner">
+      <div class="cs-label">
+        <span class="cs-label-num">07</span>
+        Résultats &<br>Livrables
+      </div>
+      <div class="cs-content">
+        <h3>Ce qui a été produit<br>et démontré.</h3>
+        <div class="results-grid">
+          <div class="result-item">
+            <span class="ri-arrow">→</span>
+            <div class="ri-text">
+              <strong>Prototype haute-fidélité complet</strong>
+              Application 3 rôles (étudiant, mentor, admin) avec parcours utilisateur complets et dashboard KPI intégré.
+            </div>
+          </div>
+          <div class="result-item">
+            <span class="ri-arrow">→</span>
+            <div class="ri-text">
+              <strong>Analyse coûts-bénéfices documentée</strong>
+              Modélisation économique démontrant la viabilité du projet avec projection ROI sur 3 ans.
+            </div>
+          </div>
+          <div class="result-item">
+            <span class="ri-arrow">→</span>
+            <div class="ri-text">
+              <strong>Cadre KPI du mentorat</strong>
+              Définition de 6 indicateurs clés permettant le suivi continu de l'engagement et de la qualité du mentorat.
+            </div>
+          </div>
+          <div class="result-item">
+            <span class="ri-arrow">→</span>
+            <div class="ri-text">
+              <strong>Recommandations stratégiques</strong>
+              Présentation structurée aux décideurs de la faculté avec plan de déploiement phasé.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 08 LEÇONS APPRISES ══ -->
+  <div class="cs-section reveal">
+    <div class="cs-section-inner">
+      <div class="cs-label">
+        <span class="cs-label-num">08</span>
+        Leçons<br>apprises
+      </div>
+      <div class="cs-content">
+        <h3>Ce que ce projet<br>m'a enseigné.</h3>
+        <div class="learning-list">
+          <div class="ll-item">
+            <div class="ll-dot"></div>
+            <div class="ll-text"><em>La donnée sans cadre décisionnel ne sert à rien.</em> Définir les KPI avant de concevoir l'outil a été la décision la plus importante du projet — elle a déterminé toute l'architecture de l'application.</div>
+          </div>
+          <div class="ll-item">
+            <div class="ll-dot"></div>
+            <div class="ll-text"><em>L'analyse économique est un outil de conviction.</em> Les décideurs institutionnels répondent aux chiffres. Traduire un objectif pédagogique en impact financier a été essentiel pour obtenir l'adhésion.</div>
+          </div>
+          <div class="ll-item">
+            <div class="ll-dot"></div>
+            <div class="ll-text"><em>La simplicité est une contrainte de design, pas un compromis.</em> Un outil que les mentors n'utilisent pas ne produit aucune donnée. Chaque fonctionnalité a été évaluée à l'aune de son adoption probable.</div>
+          </div>
+          <div class="ll-item">
+            <div class="ll-dot"></div>
+            <div class="ll-text"><em>Le vrai livrable n'est pas le prototype — c'est la décision qu'il permet.</em> L'objectif final était d'aider la faculté à décider d'investir ou non. Le prototype était le véhicule, pas la destination.</div>
+          </div>
+        </div>
+
+        <!-- Skills demonstrated -->
+        <div style="margin-top:32px;">
+          <div style="font-size:.58rem;letter-spacing:.25em;text-transform:uppercase;color:var(--light);margin-bottom:16px;">Compétences démontrées dans ce projet</div>
+          <div class="skills-demonstrated">
+            <div class="sd-item">
+              <div class="sd-icon">📊</div>
+              <div class="sd-label">Analyse de données d'enquête</div>
+            </div>
+            <div class="sd-item">
+              <div class="sd-icon">🎨</div>
+              <div class="sd-label">UX Research & Prototypage</div>
+            </div>
+            <div class="sd-item">
+              <div class="sd-icon">💰</div>
+              <div class="sd-label">Modélisation financière</div>
+            </div>
+            <div class="sd-item">
+              <div class="sd-icon">🎯</div>
+              <div class="sd-label">Conseil stratégique</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end cs-body -->
+
+<!-- ══ NEXT CASE ══ -->
+<div class="next-case">
+  <div class="nc-left">
+    <div class="nc-label">Cas suivant — 01</div>
+    <h2 class="nc-title">Automatisation &<br>gestion des risques</h2>
+    <p class="nc-desc">Comment j'ai automatisé les processus de reporting à l'Université d'Ottawa et réduit de 40% le temps de traitement manuel — avec Excel, VBA et une migration documentaire complète.</p>
+  </div>
+  <div class="nc-right">
+    <a href="portfolio-sandra.html#projects" class="nc-btn primary">Voir tous les projets →</a>
+    <a href="portfolio-sandra.html#contact" class="nc-btn">Me contacter →</a>
+    <a href="case-studies-sandra.pdf" class="nc-btn" download>Télécharger les case studies PDF →</a>
+  </div>
+</div>
+
+<script>
+// Cursor
+const cur = document.getElementById('cursor'), ring = document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function loop(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(loop);})();
+document.querySelectorAll('a').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ring.style.width='48px';ring.style.height='48px';});
+  el.addEventListener('mouseleave',()=>{ring.style.width='32px';ring.style.height='32px';});
+});
+
+// Reading progress bar
+window.addEventListener('scroll',()=>{
+  const total = document.body.scrollHeight - window.innerHeight;
+  const pct = (window.scrollY / total) * 100;
+  document.getElementById('readingBar').style.width = pct + '%';
+});
+
+// Scroll reveal
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});
+},{threshold:.07});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

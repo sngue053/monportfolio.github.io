@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Study — Tableaux de bord urgences · Sandra N'guessan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#0d0d0d; --ink2:#1a1a1a; --cream:#f0ede6; --paper:#e4e0d8;
+  --white:#ffffff; --charcoal:#2e2e2e; --mid:#666; --light:#999;
+  --bd:rgba(0,0,0,.09); --bd-dk:rgba(255,255,255,.09);
+  --accent:#1a1a1a;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--cream);color:var(--charcoal);font-family:'Montserrat',sans-serif;font-weight:300;line-height:1.7;overflow-x:hidden;cursor:none;}
+
+.cursor{position:fixed;width:8px;height:8px;background:var(--ink);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .15s;mix-blend-mode:multiply;}
+.cursor-ring{position:fixed;width:32px;height:32px;border:1px solid rgba(0,0,0,.22);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .25s,height .25s;}
+.reading-bar{position:fixed;top:0;left:0;height:2px;background:var(--charcoal);z-index:999;width:0%;}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:22px 60px;background:rgba(240,237,230,.97);border-bottom:1px solid var(--bd);backdrop-filter:blur(8px);}
+.nav-back{display:flex;align-items:center;gap:10px;text-decoration:none;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mid);transition:color .3s;}
+.nav-back:hover{color:var(--ink);}
+.nav-title{font-family:'Cormorant Garamond',serif;font-size:1rem;letter-spacing:.08em;color:var(--charcoal);}
+.nav-tag{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--light);border:1px solid var(--bd);padding:5px 12px;}
+
+/* ══ HERO ══ */
+.cs-hero{min-height:92vh;display:grid;grid-template-columns:1fr 1fr;background:var(--ink);position:relative;overflow:hidden;padding-top:80px;}
+.hero-left{padding:80px 60px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;z-index:2;}
+.hero-right{position:relative;overflow:hidden;display:flex;flex-direction:column;}
+
+/* Animated campus map placeholder */
+.campus-anim{flex:1;position:relative;background:#111;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.campus-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px;}
+.building{position:absolute;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);transition:background .3s;}
+.building.has-equip{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);}
+.building.alert{background:rgba(255,100,100,.15);border-color:rgba(255,100,100,.4);}
+.equip-dot{position:absolute;border-radius:50%;animation:pulseDot 2s ease-in-out infinite;}
+.equip-dot.ok{background:#fff;}
+.equip-dot.warn{background:#e8c56e;}
+.campus-legend{position:absolute;bottom:20px;left:20px;display:flex;flex-direction:column;gap:6px;}
+.cl-item{display:flex;align-items:center;gap:8px;font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);}
+.cl-dot{width:8px;height:8px;border-radius:50%;}
+
+.hero-case-num{font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:16px;}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.6rem,4.5vw,4.5rem);font-weight:300;line-height:1.0;color:#fff;margin-bottom:12px;}
+.hero-title em{font-style:italic;color:var(--paper);}
+.hero-org{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:32px;}
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:40px;}
+.hero-tag{font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.15);padding:5px 14px;}
+.hero-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:auto;}
+.hero-metric{background:rgba(255,255,255,.04);padding:20px 16px;border-top:1px solid rgba(255,255,255,.1);}
+.hm-n{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:300;color:#fff;line-height:1;}
+.hm-l{font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-top:4px;}
+
+.strip{background:var(--white);border-bottom:1px solid var(--bd);padding:14px 60px;display:flex;align-items:center;gap:8px;font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--light);}
+.strip span{color:var(--mid);}
+
+/* ══ BODY ══ */
+.cs-body{max-width:1200px;margin:0 auto;padding:0 60px;}
+.cs-section{padding:80px 0;border-bottom:1px solid var(--bd);}
+.cs-section:last-child{border-bottom:none;}
+.cs-section-inner{display:grid;grid-template-columns:200px 1fr;gap:60px;align-items:start;}
+.cs-label{font-size:.58rem;letter-spacing:.3em;text-transform:uppercase;color:var(--light);padding-top:6px;position:sticky;top:100px;}
+.cs-label-num{font-family:'Cormorant Garamond',serif;font-size:2.2rem;color:var(--paper);line-height:1;display:block;margin-bottom:4px;}
+.cs-content h3{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:400;color:var(--charcoal);margin-bottom:16px;line-height:1.15;}
+.cs-content p{font-size:.85rem;color:var(--mid);line-height:1.9;margin-bottom:16px;}
+.cs-content p:last-child{margin-bottom:0;}
+
+/* Problem box */
+.problem-box{background:var(--ink);padding:36px 40px;margin:24px 0;position:relative;}
+.problem-box::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#fff;}
+.pb-label{font-size:.55rem;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:12px;}
+.problem-box p{font-family:'Cormorant Garamond',serif;font-size:1.3rem;line-height:1.6;color:#fff;font-style:italic;}
+
+/* Chaos grid — data sources */
+.chaos-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin:24px 0;}
+.chaos-card{padding:20px 18px;background:var(--white);border-top:2px solid var(--paper);}
+.chaos-card.messy{border-top-color:rgba(180,80,80,.4);background:#fff8f8;}
+.cc-icon{font-size:1.6rem;margin-bottom:8px;}
+.cc-type{font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--charcoal);font-weight:500;margin-bottom:4px;}
+.cc-desc{font-size:.7rem;color:var(--mid);line-height:1.5;}
+.cc-problem{font-size:.65rem;color:rgba(180,80,80,.8);margin-top:6px;font-style:italic;}
+
+/* Arrow between chaos and solution */
+.transform-arrow{display:flex;align-items:center;justify-content:center;padding:24px 0;gap:20px;}
+.ta-line{flex:1;height:1px;background:var(--bd);}
+.ta-text{font-size:.58rem;letter-spacing:.25em;text-transform:uppercase;color:var(--light);white-space:nowrap;padding:8px 16px;border:1px solid var(--bd);}
+
+/* Process steps */
+.process-steps{display:flex;flex-direction:column;gap:2px;margin:24px 0;}
+.ps-item{display:grid;grid-template-columns:60px 1fr;background:var(--white);border-left:2px solid transparent;transition:border-color .3s,background .3s;}
+.ps-item:hover{border-left-color:var(--charcoal);background:#fafaf8;}
+.ps-num{background:var(--charcoal);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1.4rem;min-height:80px;}
+.ps-content{padding:20px 24px;}
+.ps-title{font-size:.82rem;font-weight:500;color:var(--charcoal);margin-bottom:4px;}
+.ps-desc{font-size:.76rem;color:var(--mid);line-height:1.7;}
+.ps-highlight{font-size:.7rem;color:var(--charcoal);background:var(--paper);padding:4px 10px;display:inline-block;margin-top:8px;letter-spacing:.05em;}
+
+/* Dashboard mockup interactive */
+.dashboard-wrap{background:var(--ink);border:1px solid rgba(255,255,255,.08);margin:24px 0;overflow:hidden;}
+.db-topbar{background:#111;padding:10px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,.06);}
+.db-dot{width:9px;height:9px;border-radius:50%;}
+.db-title{font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-left:8px;}
+.db-body{padding:24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.db-widget{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);padding:16px;}
+.db-widget.wide{grid-column:span 2;}
+.db-widget.full{grid-column:span 3;}
+.dw-label{font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:10px;}
+.dw-stat{font-family:'Cormorant Garamond',serif;font-size:2rem;color:#fff;line-height:1;margin-bottom:4px;}
+.dw-sub{font-size:.62rem;color:rgba(255,255,255,.3);}
+
+/* Bar chart mini */
+.mini-bars{display:flex;align-items:flex-end;gap:6px;height:60px;margin-top:10px;}
+.mb{flex:1;background:rgba(255,255,255,.15);border-radius:1px;position:relative;transition:background .3s;cursor:pointer;}
+.mb:hover{background:rgba(255,255,255,.35);}
+.mb-label{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:.5rem;color:rgba(255,255,255,.3);white-space:nowrap;}
+.mb.ok{background:rgba(255,255,255,.25);}
+.mb.warn{background:rgba(232,197,110,.4);}
+.mb.alert{background:rgba(220,80,80,.4);}
+
+/* Donut chart mini */
+.mini-donut{position:relative;width:70px;height:70px;margin:8px auto;}
+.mini-donut svg{transform:rotate(-90deg);}
+.donut-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1rem;color:#fff;}
+
+/* Status table */
+.status-table{width:100%;font-size:.62rem;}
+.st-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);align-items:center;}
+.st-name{color:rgba(255,255,255,.5);}
+.st-count{color:#fff;font-weight:500;}
+.st-bar-wrap{width:60px;height:4px;background:rgba(255,255,255,.1);border-radius:2px;}
+.st-bar{height:4px;border-radius:2px;}
+
+/* Photo placeholder */
+.img-ph{width:100%;height:100%;background:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;}
+.img-ph-icon{font-size:2rem;opacity:.15;}
+.img-ph-txt{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.2);}
+.img-ph-hint{font-size:.52rem;color:rgba(255,255,255,.15);}
+
+/* Before / after */
+.ba-table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.8rem;}
+.ba-table th{background:var(--ink);color:#fff;padding:12px 16px;text-align:left;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;font-weight:400;}
+.ba-table td{padding:14px 16px;border-bottom:1px solid var(--bd);color:var(--mid);vertical-align:top;line-height:1.6;}
+.ba-table tr:nth-child(even) td{background:var(--white);}
+.ba-table .before{color:rgba(180,80,80,.7);}
+.ba-table .after{color:var(--charcoal);font-weight:500;}
+
+/* Results grid */
+.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin:24px 0;}
+.result-item{background:var(--white);padding:24px;display:flex;gap:14px;align-items:flex-start;border-bottom:2px solid transparent;transition:border-color .3s;}
+.result-item:hover{border-bottom-color:var(--charcoal);}
+.ri-arrow{font-size:1.1rem;color:var(--charcoal);flex-shrink:0;margin-top:2px;}
+.ri-text{font-size:.8rem;color:var(--mid);line-height:1.7;}
+.ri-text strong{color:var(--charcoal);display:block;margin-bottom:3px;}
+
+/* Tools */
+.tools-row{display:flex;flex-wrap:wrap;gap:2px;margin:24px 0;}
+.tool-chip{background:var(--ink);color:#fff;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;padding:8px 18px;transition:background .2s;}
+.tool-chip:hover{background:var(--charcoal);}
+
+/* Insight cards */
+.insight-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin:24px 0;}
+.insight-card{background:var(--white);padding:28px 24px;border-top:2px solid var(--charcoal);}
+.insight-card.dark{background:var(--ink);border-top-color:var(--ink);}
+.ic-stat{font-family:'Cormorant Garamond',serif;font-size:2.2rem;color:var(--charcoal);line-height:1;margin-bottom:6px;}
+.insight-card.dark .ic-stat{color:#fff;}
+.ic-label{font-size:.7rem;color:var(--mid);line-height:1.6;}
+.insight-card.dark .ic-label{color:rgba(255,255,255,.45);}
+
+/* Quote */
+.cs-quote{background:var(--white);border-left:3px solid var(--charcoal);padding:28px 32px;margin:32px 0;}
+.cs-quote p{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-style:italic;color:var(--charcoal);line-height:1.65;}
+.cs-quote cite{display:block;margin-top:10px;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--light);font-style:normal;}
+
+/* Learning */
+.learning-list{display:flex;flex-direction:column;gap:16px;margin:24px 0;}
+.ll-item{display:flex;gap:20px;align-items:flex-start;}
+.ll-dot{width:6px;height:6px;border-radius:50%;background:var(--charcoal);flex-shrink:0;margin-top:8px;}
+.ll-text{font-size:.84rem;color:var(--mid);line-height:1.8;}
+.ll-text em{font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--charcoal);font-style:italic;}
+
+/* Skills */
+.skills-demonstrated{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin:24px 0;}
+.sd-item{background:var(--white);padding:20px 16px;text-align:center;}
+.sd-icon{font-size:1.3rem;margin-bottom:8px;}
+.sd-label{font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);line-height:1.4;}
+
+/* Context bonus CFA */
+.bonus-band{background:var(--charcoal);padding:40px 60px;margin:0;}
+.bb-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 2fr;gap:60px;align-items:center;}
+.bb-label{font-size:.58rem;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:8px;}
+.bb-title{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;color:#fff;line-height:1.2;}
+.bb-text{font-size:.82rem;color:rgba(255,255,255,.5);line-height:1.85;}
+.bb-text strong{color:rgba(255,255,255,.8);}
+
+/* Next case */
+.next-case{background:var(--ink);padding:80px 60px;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+.nc-label{font-size:.58rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:12px;}
+.nc-title{font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:300;color:#fff;line-height:1.1;margin-bottom:20px;}
+.nc-desc{font-size:.8rem;color:rgba(255,255,255,.4);line-height:1.8;}
+.nc-right{display:flex;flex-direction:column;gap:12px;align-items:flex-start;}
+.nc-btn{display:inline-flex;align-items:center;gap:12px;text-decoration:none;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;border:1px solid rgba(255,255,255,.2);padding:16px 28px;color:rgba(255,255,255,.6);transition:all .35s;position:relative;overflow:hidden;}
+.nc-btn::before{content:'';position:absolute;inset:0;background:#fff;transform:scaleX(0);transform-origin:left;transition:transform .35s ease;z-index:-1;}
+.nc-btn:hover{color:var(--ink);border-color:#fff;}
+.nc-btn:hover::before{transform:scaleX(1);}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.6)}}
+@keyframes fillBar{from{width:0}to{width:var(--target-w)}}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.visible{opacity:1;transform:none;}
+
+@media(max-width:900px){
+  nav{padding:16px 24px;} .cs-hero{grid-template-columns:1fr;} .hero-right{display:none;}
+  .hero-left{padding:60px 24px 48px;} .strip,.bonus-band{padding:12px 24px;}
+  .cs-body{padding:0 24px;} .cs-section-inner{grid-template-columns:1fr;gap:24px;}
+  .cs-label{position:static;} .chaos-grid,.insight-grid{grid-template-columns:1fr 1fr;}
+  .results-grid,.skills-demonstrated{grid-template-columns:1fr;}
+  .next-case,.bb-inner{grid-template-columns:1fr;padding:60px 24px;}
+  .db-body{grid-template-columns:1fr;}
+  .db-widget.wide,.db-widget.full{grid-column:span 1;}
+}
+</style>
+</head>
+<body>
+
+<div class="reading-bar" id="readingBar"></div>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav>
+  <a href="/Users/sandranguessan/School Staff/Personnal Development/Portfolio/index.html" class="nav-back">← Retour au portfolio</a>
+  <span class="nav-title">Sandra N'guessan</span>
+  <span class="nav-tag">Case Study 02</span>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="cs-hero">
+  <div class="hero-left">
+    <div class="hero-case-num">Cas n° 02 — Power BI · Data Visualisation</div>
+    <h1 class="hero-title">De fichiers<br>épars à un<br><em>campus sous<br>contrôle</em></h1>
+    <p class="hero-org">Gestion des urgences · Université d'Ottawa · Mai – Août 2025</p>
+    <div class="hero-tags">
+      <span class="hero-tag">Power BI</span>
+      <span class="hero-tag">Excel Structuré</span>
+      <span class="hero-tag">Data Centralisation</span>
+      <span class="hero-tag">Inventaire & Traçabilité</span>
+      <span class="hero-tag">Visualisation décisionnelle</span>
+    </div>
+    <div class="hero-metrics">
+      <div class="hero-metric">
+        <div class="hm-n">1</div>
+        <div class="hm-l">Source unique<br>de vérité</div>
+      </div>
+      <div class="hero-metric">
+        <div class="hm-n">3</div>
+        <div class="hm-l">Tableaux de<br>bord livrés</div>
+      </div>
+      <div class="hero-metric">
+        <div class="hm-n">↓</div>
+        <div class="hm-l">Écarts d'inventaire<br>réduits</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Campus map animation -->
+  <div class="hero-right">
+    <div class="campus-anim" id="campusAnim">
+      <div class="campus-grid"></div>
+      <!-- Buildings injected by JS -->
+      <div class="campus-legend">
+        <div class="cl-item"><div class="cl-dot" style="background:#fff;"></div>Équipement conforme</div>
+        <div class="cl-item"><div class="cl-dot" style="background:#e8c56e;"></div>En dessous du seuil</div>
+        <div class="cl-item"><div class="cl-dot" style="background:rgba(220,80,80,.8);"></div>Alerte manquant</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="strip">
+  <span>Portfolio</span> / <span>Projets</span> / <span style="color:var(--charcoal)">Tableaux de bord urgences</span>
+</div>
+
+<div class="cs-body">
+
+  <!-- 01 CONTEXTE -->
+  <div class="cs-section reveal">
+    <div class="cs-section-inner">
+      <div class="cs-label"><span class="cs-label-num">01</span>Contexte</div>
+      <div class="cs-content">
+        <h3>Un campus. Des dizaines<br>d'équipements. Zéro vue globale.</h3>
+        <p>À mon arrivée dans l'équipe de Gestion des urgences de l'Université d'Ottawa, la réalité du terrain était frappante : les informations relatives à la distribution des équipements d'urgence sur l'ensemble du campus étaient éparpillées dans des fichiers de nature hétérogène — PDF, documents Word, feuilles Excel non standardisées — sans aucun outil centralisé de suivi.</p>
+        <p>Personne ne pouvait répondre à une question aussi simple que : <em>"Combien de défibrillateurs avons-nous dans le bâtiment SITE, et sont-ils à jour en maintenance ?"</em> Les équipes travaillaient à l'aveugle, les décisions de réapprovisionnement se prenaient sur la base d'estimations, et les écarts d'inventaire passaient inaperçus.</p>
+
+        <div class="problem-box">
+          <div class="pb-label">Problème central identifié</div>
+          <p>"Des données existent — mais elles sont invisibles, incomparables et inexploitables pour la prise de décision opérationnelle."</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 DIAGNOSTIC -->
+  <div class="cs-section reveal">
+    <div class="cs-section-inner">
+      <div class="cs-label"><span class="cs-label-num">02</span>Diagnostic des sources</div>
+      <div class="cs-content">
+        <h3>L'anatomie<br>du chaos documentaire.</h3>
+        <p>La première étape a été de cartographier l'ensemble des sources de données existantes pour comprendre l'ampleur du problème. Chaque source avait sa propre logique, son propre format, son propre niveau de complétude.</p>
+
+        <div class="chaos-grid">
+          <div class="chaos-card messy">
+            <div class="cc-icon">📄</div>
+            <div class="cc-type">Fichiers PDF</div>
+            <div class="cc-desc">Rapports d'inspection, listes d'inventaire scannées, bilans de maintenance.</div>
+            <div class="cc-problem">Non extractibles, non comparables, non datés uniformément.</div>
+          </div>
+          <div class="chaos-card messy">
+            <div class="cc-icon">📝</div>
+            <div class="cc-type">Documents Word</div>
+            <div class="cc-desc">Notes de terrain, comptes rendus de rondes, listes créées ad hoc par les équipes.</div>
+            <div class="cc-problem">Formats libres, informations partielles, aucune structure cohérente.</div>
+          </div>
+          <div class="chaos-card messy">
+            <div class="cc-icon">📊</div>
+            <div class="cc-type">Excel non standardisé</div>
+            <div class="cc-desc">Fichiers créés individuellement, colonnes différentes d'un fichier à l'autre.</div>
+            <div class="cc-problem">Impossible à consolider automatiquement, données dupliquées.</div>
+          </div>
+          <div class="chaos-card">
+            <div class="cc-icon">🧠</div>
+            <div class="cc-type">Mémoire terrain</div>
+            <div class="cc-desc">Connaissance informelle détenue par certains membres de l'équipe.</div>
+            <div class="cc-problem">Non transférable, non traçable, risque opérationnel fort.</div>
+          </div>
+        </div>
+
+        <div class="cs-quote">
+          <p>"Le vrai problème n'était pas un manque de données — c'était un manque de structure. Les informations existaient, dispersées et inaccessibles."</p>
+          <cite>— Observation lors de la phase de diagnostic, mai 2025</cite>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 APPROCHE -->
+  <div class="cs-section reveal">
+    <div class="cs-section-inner">
+      <div class="cs-label"><span class="cs-label-num">03</span>Approche & Solution</div>
+      <div class="cs-content">
+        <h3>Centraliser, standardiser,<br>puis visualiser.</h3>
+        <p>Plutôt que de chercher à automatiser un chaos existant, j'ai choisi de reconstruire la fondation. Ma proposition : créer d'abord une source unique de vérité structurée, puis bâtir les visualisations par-dessus. Sans données propres, aucun tableau de bord ne peut être fiable.</p>
+
+        <div class="process-steps">
+          <div class="ps-item">
+            <div class="ps-num">1</div>
+            <div class="ps-content">
+              <div class="ps-title">Observation & Compréhension des besoins terrain</div>
+              <div class="ps-desc">Immersion dans les processus existants. Entretiens avec les équipes pour comprendre quels équipements sont suivis, à quelle fréquence, et quelles décisions dépendent de ces informations. Identification des questions auxquelles le dashboard devait répondre avant toute conception.</div>
+              <span class="ps-highlight">Principe : concevoir pour les décisions, pas pour les données.</span>
+            </div>
+          </div>
+          <div class="ps-item">
+            <div class="ps-num">2</div>
+            <div class="ps-content">
+              <div class="ps-title">Centralisation & Standardisation Excel</div>
+              <div class="ps-desc">Consolidation de toutes les sources (PDF, Word, Excel dispersés) dans un format Excel unique et standardisé. Définition d'un schéma de données cohérent : bâtiment, zone, type d'équipement, quantité disponible, quantité requise, date de maintenance, statut. Règles de saisie documentées pour garantir la continuité après le mandat.</div>
+              <span class="ps-highlight">Livrable : 1 fichier Excel maître, structuré et documenté.</span>
+            </div>
+          </div>
+          <div class="ps-item">
+            <div class="ps-num">3</div>
+            <div class="ps-content">
+              <div class="ps-title">Développement des tableaux de bord Power BI</div>
+              <div class="ps-desc">Connexion du fichier Excel maître à Power BI. Conception de 3 tableaux de bord distincts : vue globale campus (proportion disponible vs requis), vue par bâtiment/zone (drill-down), et tableau de suivi maintenance (alertes et dates d'expiration). Intégration de graphiques de proportion et d'indicateurs de seuil critiques.</div>
+              <span class="ps-highlight">Livrable : 3 dashboards Power BI opérationnels.</span>
+            </div>
+          </div>
+          <div class="ps-item">
+            <div class="ps-num">4</div>
+            <div class="ps-content">
+              <div class="ps-title">Validation avec les parties prenantes</div>
+              <div class="ps-desc">Présentation des livrables aux équipes opérationnelles et à la direction. Itérations basées sur les retours : ajustements des seuils d'alerte, ajout de filtres par type d'équipement, amélioration de la lisibilité des graphiques de proportion. Validation finale avant remise officielle.</div>
+              <span class="ps-highlight">Principe : un outil non adopté n'a aucune valeur.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 DASHBOARD MOCKUP -->
+  <div class="cs-section reveal">
+    <div class="cs-section-inner">
+      <div class="cs-label"><span class="cs-label-num">04</span>Tableaux de bord</div>
+      <div class="cs-content">
+        <h3>Ce que les équipes<br>peuvent voir maintenant.</h3>
+        <p>Les trois dashboards répondent chacun à un niveau de décision distinct : opérationnel (par zone), tactique (par bâtiment) et stratégique (vue campus globale). Ci-dessous, une représentation schématique de la structure du tableau de bord principal.</p>
+
+        <!-- Interactive dashboard mockup -->
+        <div class="dashboard-wrap">
+          <div class="db-topbar">
+            <div class="db-dot" style="background:#e05454;"></div>
+            <div class="db-dot" style="background:#e0c454;"></div>
+            <div class="db-dot" style="background:#54e07a;"></div>
+            <span class="db-title">Tableau de bord — Distribution équipements urgence · Campus uOttawa</span>
+          </div>
+          <div class="db-body" id="dbBody">
+
+            <!-- KPI 1 -->
+            <div class="db-widget">
+              <div class="dw-label">Équipements conformes</div>
+              <div class="dw-stat" id="kpi1">—</div>
+              <div class="dw-sub">sur l'ensemble du campus</div>
+              <!-- Mini donut -->
+              <div class="mini-donut" id="donut1">
+                <svg viewBox="0 0 36 36" width="70" height="70">
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="4"/>
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="4"
+                    stroke-dasharray="0 88" id="donutArc1" stroke-linecap="round"/>
+                </svg>
+                <div class="donut-pct" id="donutPct1">0%</div>
+              </div>
+            </div>
+
+            <!-- KPI 2 -->
+            <div class="db-widget">
+              <div class="dw-label">Alertes actives</div>
+              <div class="dw-stat" style="color:#e8c56e;" id="kpi2">—</div>
+              <div class="dw-sub">équipements sous le seuil requis</div>
+              <div class="mini-donut" id="donut2">
+                <svg viewBox="0 0 36 36" width="70" height="70">
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="4"/>
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(232,197,110,.8)" stroke-width="4"
+                    stroke-dasharray="0 88" id="donutArc2" stroke-linecap="round"/>
+                </svg>
+                <div class="donut-pct" id="donutPct2" style="color:#e8c56e;">0%</div>
+              </div>
+            </div>
+
+            <!-- KPI 3 -->
+            <div class="db-widget">
+              <div class="dw-label">Dernière mise à jour</div>
+              <div class="dw-stat" style="font-size:1.1rem;margin-top:8px;">Temps réel</div>
+              <div class="dw-sub" style="margin-top:4px;">Synchronisé depuis Excel maître</div>
+              <div style="margin-top:16px;display:flex;flex-direction:column;gap:5px;">
+                <div style="display:flex;justify-content:space-between;font-size:.58rem;color:rgba(255,255,255,.3);">
+                  <span>Défibrillateurs</span><span style="color:#54e07a;">✓ Complet</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:.58rem;color:rgba(255,255,255,.3);">
+                  <span>Extincteurs</span><span style="color:#e8c56e;">⚠ 2 manquants</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:.58rem;color:rgba(255,255,255,.3);">
+                  <span>Kits premiers soins</span><span style="color:#54e07a;">✓ Complet</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:.58rem;color:rgba(255,255,255,.3);">
+                  <span>Trousses d'urgence</span><span style="color:#e05454;">✗ 5 manquants</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bar chart - by building -->
+            <div class="db-widget wide">
+              <div class="dw-label">Proportion disponible vs requis — par bâtiment</div>
+              <div class="mini-bars" id="barChart">
+                <!-- Injected by JS -->
+              </div>
+              <div style="display:flex;gap:12px;margin-top:20px;">
+                <div style="display:flex;align-items:center;gap:5px;font-size:.52rem;color:rgba(255,255,255,.3);">
+                  <div style="width:8px;height:8px;background:rgba(255,255,255,.25);"></div> Conforme
+                </div>
+                <div style="display:flex;align-items:center;gap:5px;font-size:.52rem;color:rgba(255,255,255,.3);">
+                  <div style="width:8px;height:8px;background:rgba(232,197,110,.4);"></div> Sous le seuil
+                </div>
+                <div style="display:flex;align-items:center;gap:5px;font-size:.52rem;color:rgba(255,255,255,.3);">
+                  <div style="width:8px;height:8px;background:rgba(220,80,80,.4);"></div> Alerte critique
+                </div>
+              </div>
+            </div>
+
+            <!-- Status table -->
+            <div class="db-widget full" style="margin-top:0;">
+              <div class="dw-label">Détail par type d'équipement</div>
+              <div class="status-table" id="statusTable">
+                <!-- Injected by JS -->
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- DISCLAIMER BANNER -->
+        <div style="margin-top:16px;background:var(--cream);border:1px solid var(--bd);border-left:3px solid var(--charcoal);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;">
+          <div style="font-size:1.1rem;flex-shrink:0;margin-top:2px;">⚠️</div>
+          <div>
+            <div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--charcoal);font-weight:500;margin-bottom:5px;">Représentation estimée — Propriété intellectuelle de l'Université d'Ottawa</div>
+            <div style="font-size:.76rem;color:var(--mid);line-height:1.75;">Le tableau de bord ci-dessus est une <strong style="color:var(--charcoal);">reconstruction schématique et approximative</strong> réalisée à des fins de présentation. Le tableau de bord original, les données réelles et l'ensemble des livrables produits dans le cadre de ce mandat sont la <strong style="color:var(--charcoal);">propriété exclusive de l'Université d'Ottawa</strong> et restent confidentiels. Les chiffres, libellés et structures affichés ici sont illustratifs et ne reflètent pas les données institutionnelles réelles.</div>
+          </div>
+        </div>
+
+        <div class="tools-row" style="margin-top:24px;">
+          <span class="tool-chip">Power BI</span>
+          <span class="tool-chip">DAX</span>
+          <span class="tool-chip">Excel structuré</span>
+          <span class="tool-chip">Modélisation de données</span>
+          <span class="tool-chip">Graphiques de proportion</span>
+          <span class="tool-chip">Seuils & alertes</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 AVANT/APRÈS -->
+  <div class="cs-section reveal">
+    <div class="cs-section-inner">
+      <div class="cs-label"><span class="cs-label-num">05</span>Avant & Après</div>
+      <div class="cs-content">
+        <h3>La transformation<br>opérationnelle.</h3>
+        <table class="ba-table">
+          <thead>
+            <tr><th>Dimension</th><th>Avant</th><th>Après</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Sources de données</strong></td>
+              <td class="before">PDF, Word, Excel disparates, non centralisés</td>
+              <td class="after">1 fichier Excel maître standardisé</td>
+            </tr>
+            <tr>
+              <td><strong>Visibilité campus</strong></td>
+              <td class="before">Aucune vue globale possible</td>
+              <td class="after">Dashboard temps réel, campus entier</td>
+            </tr>
+            <tr>
+              <td><strong>Détection des manques</strong></td>
+              <td class="before">Manuelle, réactive, aléatoire</td>
+              <td class="after">Automatique, proactive, alertes visuelles</td>
+            </tr>
+            <tr>
+              <td><strong>Traçabilité</strong></td>
+              <td class="before">Impossible à auditer</td>
+              <td class="after">Historique et statut par équipement</td>
+            </tr>
+            <tr>
+              <td><strong>Décisions réapprovisionnement</strong></td>
+              <td class="before">Basées sur estimations ou mémoire</td>
+              <td class="after">Basées sur données mesurées et seuils</td>
+            </tr>
+            <tr>
+              <td><strong>Écarts d'inventaire</strong></td>
+              <td class="before">Non détectés, non quantifiés</td>
+              <td class="after">Identifiés, quantifiés, priorisés</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 06 RÉSULTATS -->
+  <div class="cs-section reveal">
+    <div class="cs-section-inner">
+      <div class="cs-label"><span class="cs-label-num">06</span>Résultats</div>
+      <div class="cs-content">
+        <h3>Ce que ce travail<br>a rendu possible.</h3>
+        <div class="results-grid">
+          <div class="result-item">
+            <span class="ri-arrow">→</span>
+            <div class="ri-text">
+              <strong>Traçabilité complète du matériel</strong>
+              Pour la première fois, l'équipe dispose d'une vue exhaustive et à jour de tous les équipements d'urgence sur l'ensemble du campus.
+            </div>
+          </div>
+          <div class="result-item">
+            <span class="ri-arrow">→</span>
+            <div class="ri-text">
+              <strong>Réduction des écarts d'inventaire</strong>
+              Les équipements sous le seuil requis sont identifiés instantanément, permettant une action corrective rapide plutôt qu'une découverte lors d'une urgence.
+            </div>
+          </div>
+          <div class="result-item">
+            <span class="ri-arrow">→</span>
+            <div class="ri-text">
+              <strong>Décisions basées sur des données</strong>
+              Les achats et réapprovisionnements peuvent désormais être planifiés de manière proactive, avec des priorités claires par zone et par type d'équipement.
+            </div>
+          </div>
+          <div class="result-item">
+            <span class="ri-arrow">→</span>
+            <div class="ri-text">
+              <strong>Solution durable et maintenable</strong>
+              La structure Excel standardisée et les règles de saisie documentées permettent à l'équipe de continuer à alimenter et utiliser les dashboards de manière autonome.
+            </div>
+          </div>
+        </div>
+
+        <div class="insight-grid" style="margin-top:8px;">
+          <div class="insight-card dark">
+            <div class="ic-stat">1</div>
+            <div class="ic-label">Source unique de vérité remplaçant des dizaines de fichiers épars</div>
+          </div>
+          <div class="insight-card">
+            <div class="ic-stat">3</div>
+            <div class="ic-label">Tableaux de bord Power BI livrés (campus, bâtiment, maintenance)</div>
+          </div>
+          <div class="insight-card">
+            <div class="ic-stat">24</div>
+            <div class="ic-label">Modules de formation vidéo développés pour « Êtes-vous prêts ? »</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 07 LEÇONS -->
+  <div class="cs-section reveal">
+    <div class="cs-section-inner">
+      <div class="cs-label"><span class="cs-label-num">07</span>Leçons apprises</div>
+      <div class="cs-content">
+        <h3>Ce que ce projet<br>m'a appris.</h3>
+        <div class="learning-list">
+          <div class="ll-item">
+            <div class="ll-dot"></div>
+            <div class="ll-text"><em>La qualité des données précède toujours la qualité des visualisations.</em> Aucun outil de BI ne peut compenser des données mal structurées à la source. Investir dans la standardisation des données d'abord est toujours la bonne décision.</div>
+          </div>
+          <div class="ll-item">
+            <div class="ll-dot"></div>
+            <div class="ll-text"><em>Commencer par les questions, pas par les outils.</em> La tentation est de lancer Power BI dès le premier jour. La vraie valeur vient d'avoir d'abord demandé : "Quelle décision ce dashboard doit-il permettre de prendre ?"</div>
+          </div>
+          <div class="ll-item">
+            <div class="ll-dot"></div>
+            <div class="ll-text"><em>La durabilité d'une solution dépend de son adoption.</em> Un dashboard que l'équipe ne sait pas alimenter ni interpréter perd sa valeur dès la fin du mandat. Documenter et former sont aussi importants que livrer.</div>
+          </div>
+          <div class="ll-item">
+            <div class="ll-dot"></div>
+            <div class="ll-text"><em>Les données de sécurité méritent une rigueur particulière.</em> Dans un contexte d'urgence, une information incorrecte sur la disponibilité d'un défibrillateur peut avoir des conséquences critiques. Cela m'a appris à traiter la qualité des données comme une question d'éthique professionnelle, pas seulement de performance.</div>
+          </div>
+        </div>
+
+        <div class="skills-demonstrated" style="margin-top:32px;">
+          <div style="font-size:.58rem;letter-spacing:.25em;text-transform:uppercase;color:var(--light);margin-bottom:16px;grid-column:span 4;">Compétences démontrées</div>
+          <div class="sd-item"><div class="sd-icon">📊</div><div class="sd-label">Power BI & DAX</div></div>
+          <div class="sd-item"><div class="sd-icon">🗄</div><div class="sd-label">Modélisation & structuration de données</div></div>
+          <div class="sd-item"><div class="sd-icon">🔍</div><div class="sd-label">Analyse des besoins terrain</div></div>
+          <div class="sd-item"><div class="sd-icon">🎯</div><div class="sd-label">Visualisation décisionnelle</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ BONUS : Lien avec contexte analytique & CFA ══ -->
+<div class="bonus-band reveal">
+  <div class="bb-inner">
+    <div>
+      <div class="bb-label">Compétences complémentaires</div>
+      <div class="bb-title">Visualisation au service<br>de la décision financière</div>
+    </div>
+    <div class="bb-text">
+      Ce projet m'a convaincue que la visualisation de données est un langage universel — qu'il s'agisse d'équipements d'urgence sur un campus ou de flux financiers internationaux. Mes cours en <strong>analytique de gestion</strong> et <strong>finances internationales</strong>, ainsi que ma participation au <strong>Défi du Gouverneur de la Banque du Canada</strong>, m'ont permis d'appliquer cette même logique à des indicateurs macroéconomiques : taux d'intérêt, flux de capitaux, prévisions de croissance. Dans les deux cas, l'enjeu est identique — transformer des données complexes en représentations visuelles qui permettent à des décideurs de comprendre vite et d'agir juste.
+    </div>
+  </div>
+</div>
+
+<!-- ══ NEXT CASE ══ -->
+<div class="next-case">
+  <div>
+    <div class="nc-label">Cas suivant — 04</div>
+    <h2 class="nc-title">Mentorat étudiant :<br>de la donnée à la décision</h2>
+    <p class="nc-desc">Comment j'ai transformé un problème de rétention étudiante en prototype d'application BI, avec analyse coûts-bénéfices à l'appui.</p>
+  </div>
+  <div class="nc-right">
+    <a href="case-study-mentorat.html" class="nc-btn primary">Voir ce case study →</a>
+    <a href="portfolio-sandra.html#projects" class="nc-btn">Tous les projets →</a>
+    <a href="case-studies-sandra.pdf" class="nc-btn" download>Télécharger le PDF complet →</a>
+  </div>
+</div>
+
+<script>
+// Cursor
+const cur=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function loop(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(loop);})();
+document.querySelectorAll('a').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ring.style.width='48px';ring.style.height='48px';});
+  el.addEventListener('mouseleave',()=>{ring.style.width='32px';ring.style.height='32px';});
+});
+
+// Reading bar
+window.addEventListener('scroll',()=>{
+  const pct=(window.scrollY/(document.body.scrollHeight-window.innerHeight))*100;
+  document.getElementById('readingBar').style.width=pct+'%';
+});
+
+// Scroll reveal
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});
+},{threshold:.07});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// ── Campus animation ──
+const anim = document.getElementById('campusAnim');
+const buildings = [
+  {x:15,y:20,w:18,h:12,name:'STEM',status:'ok'},
+  {x:38,y:12,w:22,h:14,name:'ARTS',status:'ok'},
+  {x:65,y:8,w:16,h:18,name:'SITE',status:'warn'},
+  {x:20,y:42,w:14,h:10,name:'GYM',status:'ok'},
+  {x:40,y:38,w:20,h:16,name:'LIBRARY',status:'ok'},
+  {x:68,y:35,w:18,h:12,name:'SOCIAL',status:'alert'},
+  {x:15,y:62,w:16,h:14,name:'LAB',status:'ok'},
+  {x:38,y:65,w:24,h:12,name:'ADMIN',status:'warn'},
+  {x:70,y:60,w:14,h:16,name:'RES',status:'ok'},
+];
+const statusColors={ok:'rgba(255,255,255,.18)',warn:'rgba(232,197,110,.25)',alert:'rgba(220,80,80,.25)'};
+const dotColors={ok:'#fff',warn:'#e8c56e',alert:'#e05454'};
+
+buildings.forEach(b=>{
+  const el=document.createElement('div');
+  el.className='building'+(b.status!=='ok'?' '+b.status:'');
+  el.style.cssText=`left:${b.x}%;top:${b.y}%;width:${b.w}%;height:${b.h}%;background:${statusColors[b.status]};position:absolute;`;
+  // Label
+  const lbl=document.createElement('div');
+  lbl.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.45rem;letter-spacing:.1em;color:rgba(255,255,255,.4);';
+  lbl.textContent=b.name;
+  el.appendChild(lbl);
+  // Dot
+  const dot=document.createElement('div');
+  dot.className='equip-dot '+b.status;
+  dot.style.cssText=`width:7px;height:7px;background:${dotColors[b.status]};position:absolute;top:5px;right:5px;animation-delay:${Math.random()*2}s;`;
+  el.appendChild(dot);
+  anim.appendChild(el);
+});
+
+// ── Dashboard animations ──
+const barData=[
+  {label:'STEM',pct:92,status:'ok'},{label:'ARTS',pct:100,status:'ok'},
+  {label:'SITE',pct:68,status:'warn'},{label:'GYM',pct:95,status:'ok'},
+  {label:'LIB',pct:88,status:'ok'},{label:'SOC',pct:41,status:'alert'},
+  {label:'LAB',pct:97,status:'ok'},{label:'ADM',pct:74,status:'warn'},
+];
+const bc=document.getElementById('barChart');
+barData.forEach(d=>{
+  const bar=document.createElement('div');
+  bar.className='mb '+d.status;
+  bar.style.cssText=`height:${d.pct}%;position:relative;flex:1;`;
+  const lbl=document.createElement('div');
+  lbl.className='mb-label';lbl.textContent=d.label;
+  bar.appendChild(lbl);
+  bar.title=`${d.label}: ${d.pct}%`;
+  bc.appendChild(bar);
+});
+
+const equipData=[
+  {name:'Défibrillateurs (DEA)',avail:24,req:24,col:'#54e07a'},
+  {name:'Extincteurs',avail:87,req:89,col:'#e8c56e'},
+  {name:'Kits premiers soins',avail:61,req:61,col:'#54e07a'},
+  {name:'Trousses d\'urgence',avail:43,req:48,col:'#e8c56e'},
+  {name:'Masques RCR',avail:38,req:48,col:'#e05454'},
+];
+const st=document.getElementById('statusTable');
+equipData.forEach(d=>{
+  const row=document.createElement('div');
+  row.className='st-row';
+  const pct=Math.round(d.avail/d.req*100);
+  row.innerHTML=`<div class="st-name">${d.name}</div>
+    <div class="st-count" style="color:${d.col}">${d.avail}/${d.req}</div>
+    <div class="st-bar-wrap"><div class="st-bar" style="width:${pct}%;background:${d.col};"></div></div>`;
+  st.appendChild(row);
+});
+
+// Animate donuts on scroll
+function animateDonut(arcId,pctId,target,col){
+  const circ=88;
+  const arc=document.getElementById(arcId);
+  const pctEl=document.getElementById(pctId);
+  let cur=0;
+  const step=()=>{
+    cur=Math.min(cur+2,target);
+    arc.setAttribute('stroke-dasharray',`${circ*cur/100} ${circ}`);
+    pctEl.textContent=cur+'%';
+    if(cur<target)requestAnimationFrame(step);
+  };
+  step();
+}
+const dbObs=new IntersectionObserver(entries=>{
+  if(entries[0].isIntersecting){
+    document.getElementById('kpi1').textContent='78%';
+    document.getElementById('kpi2').textContent='3 zones';
+    setTimeout(()=>animateDonut('donutArc1','donutPct1',78,'#fff'),200);
+    setTimeout(()=>animateDonut('donutArc2','donutPct2',22,'#e8c56e'),400);
+    dbObs.disconnect();
+  }
+},{threshold:.3});
+const dbEl=document.getElementById('dbBody');
+if(dbEl)dbObs.observe(dbEl);
+</script>
+</body>
+</html>
